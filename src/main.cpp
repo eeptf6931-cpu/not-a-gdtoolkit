@@ -1,5 +1,6 @@
 #include <Geode/Geode.hpp>
 #include "Runtime.hpp"
+#include "Common.hpp"
 #include "Math/Calculator.hpp"
 #include "IO/FileIO.hpp"
 #include "UI/SessionReportPopup.hpp"
@@ -30,7 +31,7 @@ namespace gdtoolkit_runtime {
         if (!g_stats.tracking) return;
 
         if (player) {
-            if (g_events.size() < 100000) {
+            if (g_events.size() < gdtoolkit::kMaxRecordedEvents) {
                 g_events.push_back({
                     g_stats.attempts, g_stats.frame, button,
                     isPlayer1 ? gdtoolkit::PlayerSlot::Player1 : gdtoolkit::PlayerSlot::Player2,
@@ -62,7 +63,7 @@ namespace gdtoolkit_runtime {
             << "\nAttempt frames: " << g_stats.attemptFrames
             << "\nCurrent progress: " << std::fixed << std::setprecision(1)
             << g_stats.progress << "%"
-            << "\nBest progress: " << g_stats.bestProgress << "%"
+            << "\nBest progress: " << g_stats.bestProgress << "%"\n            << "\nBest clicks in an attempt: " << g_stats.bestClicks\n            << "\nLongest attempt: " << g_stats.bestFrames << " frames"
             << "\n\nFrame windows (between consecutive jump presses)"
             << "\n1 frame: " << g_stats.windows[0]
             << "\n2 frames: " << g_stats.windows[1]
