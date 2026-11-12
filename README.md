@@ -1,33 +1,36 @@
 # GD Toolkit
 
-A Geode mod project for Geometry Dash 2.2081. The initial commit establishes the cross-platform build skeleton and a small in-game frame-update diagnostic.
+A Geometry Dash 2.2081 Geode mod for Windows x64 and Android ARM64.
 
-## Targets
-- Windows x64 (Geode target: `Win64`)
-- Android ARM64 (Geode target: `Android64`)
+## Implemented in the current development build
 
-## Current status
-**Early development — not a finished FB Counter / Frame Window replacement.**
+- Live in-game HUD with a click counter and session attempt counter.
+- Frame-window histogram measured from actual jump-button input callbacks:
+  - 1 frame
+  - 2 frames
+  - 3–4 frames
+  - 5–6 frames
+  - 7–8 frames
+  - 9–10 frames
+  - 11+ frames
+- Best progress tracking for the current level session.
+- A **Toolkit** button in the pause menu that opens a session report.
+- Geode settings for enabling the tracker, showing the HUD, and changing HUD scale.
 
-Implemented in this bootstrap:
-- Geode mod metadata and settings
-- PlayLayer update counter
-- Optional periodic diagnostic messages in the Geode log
-- GitHub Actions build jobs for Windows x64 and Android ARM64
+## How measurements work
 
-Not implemented yet:
-- Per-click frame-window buckets (1–10 frames)
-- Click/event detection and visual HUD
-- Attempt history and statistics
-- Macro import/export and click editor
-- Full settings GUI and visual customization
+A frame window is the number of game update frames between two consecutive jump presses. It is not inferred from displayed FPS. The HUD updates several times per second to keep overhead low.
 
-The update counter counts PlayLayer update calls; it is not a verified physical-frame or input-to-input frame-window measurement. These require dedicated input/event instrumentation and in-game validation.
+The current implementation tracks player 1's primary jump input. Dual-player input separation, ring/orb classification, per-level persistent history, macro playback/import, click markers, CSV/JSON export, and the full multi-tab editor UI are not implemented yet.
 
 ## Build
-GitHub Actions builds both targets and uploads resulting `.geode` packages as workflow artifacts.
 
-## Development
-This project uses [geode-sdk/build-geode-mod](https://github.com/geode-sdk/build-geode-mod).
+The GitHub Actions workflow builds:
+- Windows x64 (`Win64`)
+- Android ARM64 (`Android64`)
 
-Repository: https://github.com/eeptf6931-cpu/not-a-gdtoolkit
+Install the generated `.geode` package that matches your platform from the workflow artifacts once both jobs complete successfully.
+
+## Status
+
+This is an active development build, not a finished release. A successful package build and in-game testing are required before calling a version stable.
