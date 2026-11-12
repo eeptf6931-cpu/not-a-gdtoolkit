@@ -147,11 +147,11 @@ namespace gdtoolkit_runtime {
                 json << "    {\"attempt\": " << event.attempt
                      << ", \"frame\": " << event.frame
                      << ", \"button\": " << event.button
-                     << ", \"player\": " << event.player
-                     << ", \"action\": \"" << (event.down ? "press" : "release")
+                     << ", \"player\": " << static_cast<unsigned>(event.player)
+                     << ", \"action\": \"" << (event.action == gdtoolkit::InputAction::Press ? "press" : "release")
                      << "\", \"x\": " << event.x
                      << ", \"y\": " << event.y
-                     << ", \"progress\": " << event.progress << "}";
+                     << ", \"progress\": " << event.progressPercent << "}";
                 json << (i + 1 == g_events.size() ? "\n" : ",\n");
             }
             json << "  ]\n"
