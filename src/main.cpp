@@ -9,12 +9,23 @@
 #include <iomanip>
 #include <fstream>
 #include <filesystem>
+#include <vector>
 
 using namespace geode::prelude;
 
 namespace {
     // Frame-window measurements are based on actual game input callbacks,
     // not on estimated FPS or wall-clock time.
+    struct InputEvent {
+        uint64_t frame = 0;
+        int button = 0;
+        int player = 1;
+        bool down = false;
+        float x = 0.f;
+        float y = 0.f;
+        float progress = 0.f;
+    };
+
     struct SessionStats {
         uint64_t frame = 0;
         uint64_t attemptFrames = 0;
@@ -32,6 +43,7 @@ namespace {
     };
 
     SessionStats g_stats;
+    std::vector<InputEvent> g_events;
     CCLabelBMFont* g_hud = nullptr;
     uint32_t g_hudRefresh = 0;
 
@@ -45,8 +57,17 @@ namespace {
         return 6;
     }
 
-    void recordInput(bool down, int button, bool isPlayer1) {
-        if (!g_stats.tracking || !down || !isPlayer1 || button != 1) return;
+    void recordInput(bool down, int button, bool isPlayer1, PlayerObject* player) {
+        if (!g_stats.tracking) return;
+
+        if (player) {
+            g_events.push_back({
+                g_stats.frame, button, isPlayer1 ? 1 : 2, down,
+                player->getPositionX(), player->getPositionY(), g_stats.progress
+            });
+        }
+
+        if (!down || !isPlayer1 || button != 1) return;
 
         ++g_stats.clicks;
         if (g_stats.hasLastPress) {
@@ -146,7 +167,20 @@ namespace {
                  << "    \"7-8\": " << g_stats.windows[4] << ",\n"
                  << "    \"9-10\": " << g_stats.windows[5] << ",\n"
                  << "    \"11+\": " << g_stats.windows[6] << "\n"
-                 << "  }\n"
+                 << "  },\n"
+                 << "  \"events\": [\n";
+            for (size_t i = 0; i < g_events.size(); ++i) {
+                const auto& event = g_events[i];
+                json << "    {\"frame\": " << event.frame
+                     << ", \"button\": " << event.button
+                     << ", \"player\": " << event.player
+                     << ", \"action\": \"" << (event.down ? "press" : "release")
+                     << "\", \"x\": " << event.x
+                     << ", \"y\": " << event.y
+                     << ", \"progress\": " << event.progress << "}";
+                json << (i + 1 == g_events.size() ? "\n" : ",\n");
+            }
+            json << "  ]\n"
                  << "}\n";
         }
         {
@@ -169,7 +203,18 @@ namespace {
                 << "window_9_10," << g_stats.windows[5] << "\n"
                 << "window_11_plus," << g_stats.windows[6] << "\n";
         }
-        FLAlertLayer::create("GD Toolkit", "Session reports saved as gd-toolkit-session.json and gd-toolkit-session.csv in the mod save folder.", "Close")->show();
+        {
+            std::ofstream events(dir / "gd-toolkit-events.csv", std::ios::binary);
+            if (events) {
+                events << "frame,button,player,action,x,y,progress_percent\n";
+                for (const auto& event : g_events) {
+                    events << event.frame << "," << event.button << "," << event.player << ","
+                           << (event.down ? "press" : "release") << ","
+                           << event.x << "," << event.y << "," << event.progress << "\n";
+                }
+            }
+        }
+        FLAlertLayer::create("GD Toolkit", "Session summary and input history exported as JSON/CSV in the mod save folder.", "Close")->show();
     }
 
     void showReport() {
@@ -216,6 +261,7 @@ class $modify(GDToolkitPlayLayer, PlayLayer) {
         g_stats.lastPressFrame = 0;
         g_stats.hasLastPress = false;
         g_stats.currentWindows.fill(0);
+        g_events.clear();
     }
 
     void levelComplete() {
@@ -238,7 +284,7 @@ class $modify(GDToolkitGameLayer, GJBaseGameLayer) {
     void handleButton(bool down, int button, bool isPlayer1) {
         GJBaseGameLayer::handleButton(down, button, isPlayer1);
         if (Mod::get()->getSettingValue<bool>("enabled")) {
-            recordInput(down, button, isPlayer1);
+            recordInput(down, button, isPlayer1, isPlayer1 ? this->m_player1 : this->m_player2);
         }
     }
 };
