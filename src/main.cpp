@@ -7,6 +7,8 @@
 #include <algorithm>
 #include <sstream>
 #include <iomanip>
+#include <fstream>
+#include <filesystem>
 
 using namespace geode::prelude;
 
@@ -115,6 +117,61 @@ namespace {
         g_hud->setScale((Mod::get()->getSettingValue<int>("hud-scale") / 100.f));
     }
 
+    void exportSession() {
+        auto dir = Mod::get()->getSaveDir();
+        std::error_code ec;
+        std::filesystem::create_directories(dir, ec);
+        if (ec) {
+            FLAlertLayer::create("GD Toolkit", "Could not create the mod save folder.", "Close")->show();
+            return;
+        }
+
+        {
+            std::ofstream json(dir / "gd-toolkit-session.json", std::ios::binary);
+            if (!json) {
+                FLAlertLayer::create("GD Toolkit", "Could not write the JSON report.", "Close")->show();
+                return;
+            }
+            json << "{\n"
+                 << "  \"attempts\": " << g_stats.attempts << ",\n"
+                 << "  \"clicks\": " << g_stats.clicks << ",\n"
+                 << "  \"attempt_frames\": " << g_stats.attemptFrames << ",\n"
+                 << "  \"progress_percent\": " << std::fixed << std::setprecision(2) << g_stats.progress << ",\n"
+                 << "  \"best_progress_percent\": " << g_stats.bestProgress << ",\n"
+                 << "  \"frame_windows\": {\n"
+                 << "    \"1\": " << g_stats.windows[0] << ",\n"
+                 << "    \"2\": " << g_stats.windows[1] << ",\n"
+                 << "    \"3-4\": " << g_stats.windows[2] << ",\n"
+                 << "    \"5-6\": " << g_stats.windows[3] << ",\n"
+                 << "    \"7-8\": " << g_stats.windows[4] << ",\n"
+                 << "    \"9-10\": " << g_stats.windows[5] << ",\n"
+                 << "    \"11+\": " << g_stats.windows[6] << "\n"
+                 << "  }\n"
+                 << "}\n";
+        }
+        {
+            std::ofstream csv(dir / "gd-toolkit-session.csv", std::ios::binary);
+            if (!csv) {
+                FLAlertLayer::create("GD Toolkit", "JSON was saved, but the CSV report could not be written.", "Close")->show();
+                return;
+            }
+            csv << "metric,value\n"
+                << "attempts," << g_stats.attempts << "\n"
+                << "clicks," << g_stats.clicks << "\n"
+                << "attempt_frames," << g_stats.attemptFrames << "\n"
+                << "progress_percent," << g_stats.progress << "\n"
+                << "best_progress_percent," << g_stats.bestProgress << "\n"
+                << "window_1," << g_stats.windows[0] << "\n"
+                << "window_2," << g_stats.windows[1] << "\n"
+                << "window_3_4," << g_stats.windows[2] << "\n"
+                << "window_5_6," << g_stats.windows[3] << "\n"
+                << "window_7_8," << g_stats.windows[4] << "\n"
+                << "window_9_10," << g_stats.windows[5] << "\n"
+                << "window_11_plus," << g_stats.windows[6] << "\n";
+        }
+        FLAlertLayer::create("GD Toolkit", "Session reports saved as gd-toolkit-session.json and gd-toolkit-session.csv in the mod save folder.", "Close")->show();
+    }
+
     void showReport() {
         FLAlertLayer::create("GD Toolkit — Session", makeReport(), "Close")->show();
     }
@@ -205,6 +262,21 @@ class $modify(GDToolkitPauseLayer, PauseLayer) {
         if (!button) return;
         button->setPosition({winSize.width - 48.f, winSize.height - 34.f});
         menu->addChild(button);
+
+        auto exportSprite = ButtonSprite::create("Export", "bigFont.fnt", "GJ_button_01.png", 0.7f);
+        if (exportSprite) {
+            auto exportButton = CCMenuItemSpriteExtra::create(
+                exportSprite, this, menu_selector(GDToolkitPauseLayer::onExport)
+            );
+            if (exportButton) {
+                exportButton->setPosition({winSize.width - 48.f, winSize.height - 76.f});
+                menu->addChild(exportButton);
+            }
+        }
+    }
+
+    void onExport(CCObject*) {
+        exportSession();
     }
 
     void onToolkit(CCObject*) {
