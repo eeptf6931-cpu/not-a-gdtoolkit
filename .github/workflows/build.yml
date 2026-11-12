@@ -57,6 +57,7 @@ jobs:
         uses: geode-sdk/build-geode-mod@main
         with:
           target: ${{ matrix.target }}
+          bindings-ref: 01518cec46e0986880569f39a5ebe1a65f783c75
           configure-args: -DGEODE_DISABLE_FMT_CONSTEVAL=ON
           android-ndk-version: ${{ matrix.target == 'Android64' && '27.2.12479018' || '' }}
 
