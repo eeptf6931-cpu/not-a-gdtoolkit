@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(Geode REQUIRED)
 
-add_geode、mod(GDToolkit
+add_geode_mod(GDToolkit
     SOURCES
         src/main.cpp
 )
