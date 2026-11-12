@@ -63,7 +63,9 @@ namespace gdtoolkit_runtime {
             << "\nAttempt frames: " << g_stats.attemptFrames
             << "\nCurrent progress: " << std::fixed << std::setprecision(1)
             << g_stats.progress << "%"
-            << "\nBest progress: " << g_stats.bestProgress << "%"\n            << "\nBest clicks in an attempt: " << g_stats.bestClicks\n            << "\nLongest attempt: " << g_stats.bestFrames << " frames"
+            << "\nBest progress: " << g_stats.bestProgress << "%"
+            << "\nBest clicks in an attempt: " << g_stats.bestClicks
+            << "\nLongest attempt: " << g_stats.bestFrames << " frames"
             << "\n\nFrame windows (between consecutive jump presses)"
             << "\n1 frame: " << g_stats.windows[0]
             << "\n2 frames: " << g_stats.windows[1]
@@ -103,6 +105,7 @@ namespace gdtoolkit_runtime {
             << "\n5-6f " << g_stats.windows[3]
             << "  7-8f " << g_stats.windows[4]
             << "  9-10f " << g_stats.windows[5]
+            << "  11+f " << g_stats.windows[6]
             << "\nBest: " << std::fixed << std::setprecision(1)
             << g_stats.bestProgress << "%";
         g_hud->setString(out.str().c_str());
@@ -133,6 +136,8 @@ namespace gdtoolkit_runtime {
                  << "  \"attempt_frames\": " << g_stats.attemptFrames << ",\n"
                  << "  \"progress_percent\": " << std::fixed << std::setprecision(2) << g_stats.progress << ",\n"
                  << "  \"best_progress_percent\": " << g_stats.bestProgress << ",\n"
+                 << "  \"best_clicks\": " << g_stats.bestClicks << ",\n"
+                 << "  \"longest_attempt_frames\": " << g_stats.bestFrames << ",\n"
                  << "  \"frame_windows\": {\n"
                  << "    \"1\": " << g_stats.windows[0] << ",\n"
                  << "    \"2\": " << g_stats.windows[1] << ",\n"
