@@ -15,6 +15,7 @@ A Geometry Dash 2.2081 Geode mod for Windows x64 and Android ARM64.
   - 11+ frames
 - Best progress tracking for the current level session.
 - A **Toolkit** button in the pause menu that opens a session report.
+- An **Export** button that writes session statistics to JSON and CSV in the mod save folder.
 - Geode settings for enabling the tracker, showing the HUD, and changing HUD scale.
 
 ## How measurements work
