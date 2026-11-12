@@ -21,9 +21,11 @@ jobs:
           - name: Windows x64
             target: Win64
             runner: windows-latest
+            ndk: ""
           - name: Android ARM64
             target: Android64
             runner: ubuntu-22.04
+            ndk: "27.2.12479018"
 
     steps:
       - name: Checkout
@@ -34,6 +36,7 @@ jobs:
         uses: geode-sdk/build-geode-mod@main
         with:
           target: ${{ matrix.target }}
+          android-ndk-version: ${{ matrix.ndk }}
 
       - name: Upload .geode package
         uses: actions/upload-artifact@v4
