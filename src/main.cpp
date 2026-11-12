@@ -1,6 +1,7 @@
 #include <Geode/Geode.hpp>
 #include "Runtime.hpp"
 #include "Math/Calculator.hpp"
+#include "IO/FileIO.hpp"
 #include "UI/SessionReportPopup.hpp"
 
 #include <array>
@@ -31,7 +32,9 @@ namespace gdtoolkit_runtime {
         if (player) {
             if (g_events.size() < 100000) {
                 g_events.push_back({
-                    g_stats.attempts, g_stats.frame, button, isPlayer1 ? 1 : 2, down,
+                    g_stats.attempts, g_stats.frame, button,
+                    isPlayer1 ? gdtoolkit::PlayerSlot::Player1 : gdtoolkit::PlayerSlot::Player2,
+                    down ? gdtoolkit::InputAction::Press : gdtoolkit::InputAction::Release,
                     player->getPositionX(), player->getPositionY(), g_stats.progress
                 });
             }
@@ -175,14 +178,9 @@ namespace gdtoolkit_runtime {
                 << "window_11_plus," << g_stats.windows[6] << "\n";
         }
         {
-            std::ofstream events(dir / "gd-toolkit-events.csv", std::ios::binary);
-            if (events) {
-                events << "attempt,frame,button,player,action,x,y,progress_percent\\n";
-                for (const auto& event : g_events) {
-                    events << event.attempt << "," << event.frame << "," << event.button << "," << event.player << ","
-                           << (event.down ? "press" : "release") << ","
-                           << event.x << "," << event.y << "," << event.progress << "\\n";
-                }
+            std::string error;
+            if (!gdtoolkit::io::writeEventsCsv(dir / "gd-toolkit-events.csv", g_events, error)) {
+                log::warn("Could not export input event CSV: {}", error);
             }
         }
         FLAlertLayer::create("GD Toolkit", "Session summary and input history exported as JSON/CSV in the mod save folder.", "Close")->show();
