@@ -29,13 +29,29 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      # Geode SDK 4.0.0's bundled fmt 11.0.2 hits a Clang 21 consteval
+      # regression. Use a known-compatible Clang 19 toolchain on Windows.
+      - name: Set up Clang 19
+        if: matrix.target == 'Win64'
+        uses: egor-tensin/setup-clang@v2
+        with:
+          version: 19
+          platform: x64
+
+      # NDK 27.2 ships Clang 18, avoiding the same regression on Android.
+      - name: Set up Android SDK and NDK
+        if: matrix.target == 'Android64'
+        uses: android-actions/setup-android@v3
+        with:
+          ndk-version: 27.2.12479018
+
       - name: Build Geode mod
         id: build
         uses: geode-sdk/build-geode-mod@main
         with:
           target: ${{ matrix.target }}
           configure-args: -DGEODE_DISABLE_FMT_CONSTEVAL=ON
-          android-ndk-version: 29.0.14206865
+          android-ndk-version: ${{ matrix.target == 'Android64' && '27.2.12479018' || '' }}
 
       - name: Upload .geode package
         uses: actions/upload-artifact@v4
