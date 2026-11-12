@@ -11,19 +11,31 @@
   "description": "Frame and attempt analysis toolkit for Geometry Dash.",
   "repository": "https://github.com/eeptf6931-cpu/not-a-gdtoolkit",
   "settings": {
-    "show-frame-log": {
+    "enabled": {
       "type": "bool",
-      "name": "Frame diagnostics",
-      "description": "Write periodic frame-counter diagnostics to the Geode log.",
+      "name": "Enable GD Toolkit",
+      "description": "Enable live input and frame-window tracking.",
       "default": true
     },
-    "log-interval": {
+    "show-hud": {
+      "type": "bool",
+      "name": "Show HUD",
+      "description": "Display the live counter in the top-left corner during gameplay.",
+      "default": true
+    },
+    "hud-scale": {
       "type": "int",
-      "name": "Log interval",
-      "description": "Number of game update frames between diagnostic log messages.",
-      "default": 300,
-      "min": 30,
-      "max": 3600
+      "name": "HUD scale (%)",
+      "description": "Scale of the in-game statistics overlay.",
+      "default": 40,
+      "min": 20,
+      "max": 80
+    },
+    "open-settings-from-pause": {
+      "type": "bool",
+      "name": "Open settings from pause button",
+      "description": "Open the Geode settings page after showing the session report.",
+      "default": false
     }
   }
 }
