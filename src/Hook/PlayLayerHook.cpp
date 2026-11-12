@@ -1,4 +1,5 @@
 #include "../Runtime.hpp"
+#include <algorithm>
 #include <Geode/modify/PlayLayer.hpp>
 using namespace geode::prelude;
 using namespace gdtoolkit_runtime;
