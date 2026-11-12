@@ -46,7 +46,10 @@ class $modify(GDToolkitPlayLayer, PlayLayer) {
 
     void levelComplete() {
         PlayLayer::levelComplete();
+        g_stats.progress = 100.f;
         g_stats.bestProgress = 100.f;
+        g_stats.bestClicks = std::max(g_stats.bestClicks, g_stats.clicks);
+        g_stats.bestFrames = std::max(g_stats.bestFrames, g_stats.attemptFrames);
         g_stats.tracking = false;
     }
 
