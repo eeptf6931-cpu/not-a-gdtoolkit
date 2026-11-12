@@ -14,33 +14,6 @@ using namespace geode::prelude;
 namespace gdtoolkit_runtime {
     // Frame-window measurements are based on actual game input callbacks,
     // not on estimated FPS or wall-clock time.
-    struct InputEvent {
-        uint64_t attempt = 1;
-        uint64_t frame = 0;
-        int button = 0;
-        int player = 1;
-        bool down = false;
-        float x = 0.f;
-        float y = 0.f;
-        float progress = 0.f;
-    };
-
-    struct SessionStats {
-        uint64_t frame = 0;
-        uint64_t attemptFrames = 0;
-        uint64_t attempts = 1;
-        uint64_t clicks = 0;
-        uint64_t bestClicks = 0;
-        uint64_t bestFrames = 0;
-        uint64_t lastPressFrame = 0;
-        bool hasLastPress = false;
-        std::array<uint64_t, 7> windows{}; // 1, 2, 3-4, 5-6, 7-8, 9-10, 11+
-        std::array<uint64_t, 7> currentWindows{};
-        float bestProgress = 0.f;
-        float progress = 0.f;
-        bool tracking = false;
-    };
-
     SessionStats g_stats;
     std::vector<InputEvent> g_events;
     CCLabelBMFont* g_hud = nullptr;
