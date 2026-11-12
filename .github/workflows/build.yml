@@ -35,7 +35,7 @@ jobs:
         with:
           target: ${{ matrix.target }}
           configure-args: -DGEODE_DISABLE_FMT_CONSTEVAL=ON
-          # Let the action use the NDK provisioned on its Ubuntu runner.
+          android-ndk-version: 29.0.14206865
 
       - name: Upload .geode package
         uses: actions/upload-artifact@v4
