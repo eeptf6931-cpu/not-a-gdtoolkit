@@ -123,7 +123,11 @@ namespace {
 class $modify(GDToolkitPlayLayer, PlayLayer) {
     void update(float dt) {
         PlayLayer::update(dt);
-        if (!Mod::get()->getSettingValue<bool>("enabled")) return;
+        if (!Mod::get()->getSettingValue<bool>("enabled")) {
+            g_stats.tracking = false;
+            if (g_hud) g_hud->setVisible(false);
+            return;
+        }
 
         g_stats.tracking = true;
         ++g_stats.frame;
