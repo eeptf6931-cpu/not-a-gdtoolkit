@@ -1,0 +1,29 @@
+{
+  "geode": "4.0.0",
+  "gd": {
+    "win": "2.2081",
+    "android": "2.2081"
+  },
+  "id": "not.a.gdtoolkit",
+  "name": "GD Toolkit",
+  "version": "v0.1.0",
+  "developer": "eeptf6931-cpu",
+  "description": "Frame and attempt analysis toolkit for Geometry Dash.",
+  "repository": "https://github.com/eeptf6931-cpu/not-a-gdtoolkit",
+  "settings": {
+    "show-frame-log": {
+      "type": "bool",
+      "name": "Frame diagnostics",
+      "description": "Write periodic frame-counter diagnostics to the Geode log.",
+      "default": true
+    },
+    "log-interval": {
+      "type": "int",
+      "name": "Log interval",
+      "description": "Number of game update frames between diagnostic log messages.",
+      "default": 300,
+      "min": 30,
+      "max": 3600
+    }
+  }
+}
