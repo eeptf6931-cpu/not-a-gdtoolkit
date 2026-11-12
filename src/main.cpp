@@ -17,6 +17,7 @@ namespace {
     // Frame-window measurements are based on actual game input callbacks,
     // not on estimated FPS or wall-clock time.
     struct InputEvent {
+        uint64_t attempt = 1;
         uint64_t frame = 0;
         int button = 0;
         int player = 1;
@@ -61,10 +62,12 @@ namespace {
         if (!g_stats.tracking) return;
 
         if (player) {
-            g_events.push_back({
-                g_stats.frame, button, isPlayer1 ? 1 : 2, down,
-                player->getPositionX(), player->getPositionY(), g_stats.progress
-            });
+            if (g_events.size() < 100000) {
+                g_events.push_back({
+                    g_stats.attempts, g_stats.frame, button, isPlayer1 ? 1 : 2, down,
+                    player->getPositionX(), player->getPositionY(), g_stats.progress
+                });
+            }
         }
 
         if (!down || !isPlayer1 || button != 1) return;
@@ -171,7 +174,8 @@ namespace {
                  << "  \"events\": [\n";
             for (size_t i = 0; i < g_events.size(); ++i) {
                 const auto& event = g_events[i];
-                json << "    {\"frame\": " << event.frame
+                json << "    {\"attempt\": " << event.attempt
+                     << ", \"frame\": " << event.frame
                      << ", \"button\": " << event.button
                      << ", \"player\": " << event.player
                      << ", \"action\": \"" << (event.down ? "press" : "release")
@@ -206,9 +210,9 @@ namespace {
         {
             std::ofstream events(dir / "gd-toolkit-events.csv", std::ios::binary);
             if (events) {
-                events << "frame,button,player,action,x,y,progress_percent\n";
+                events << "attempt,frame,button,player,action,x,y,progress_percent\n";
                 for (const auto& event : g_events) {
-                    events << event.frame << "," << event.button << "," << event.player << ","
+                    events << event.attempt << "," << event.frame << "," << event.button << "," << event.player << ","
                            << (event.down ? "press" : "release") << ","
                            << event.x << "," << event.y << "," << event.progress << "\n";
                 }
@@ -261,7 +265,6 @@ class $modify(GDToolkitPlayLayer, PlayLayer) {
         g_stats.lastPressFrame = 0;
         g_stats.hasLastPress = false;
         g_stats.currentWindows.fill(0);
-        g_events.clear();
     }
 
     void levelComplete() {
