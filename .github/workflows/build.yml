@@ -40,18 +40,18 @@ jobs:
         if: matrix.target == 'Android64'
         uses: android-actions/setup-android@v3
         with:
-          packages: ndk;27.2.12479018
+          packages: ndk;28.0.13004108
 
       # Do not pin bindings independently from the SDK: the old pinned commit
       # did not contain headers required by the generated SDK bindings.
-      # SDK latest also updates fmt to a version compatible with the runner Clang.
+      # NDK r28 ships Clang 19, required by the current Geode SDK.
       - name: Build Geode mod
         id: build
         uses: geode-sdk/build-geode-mod@main
         with:
           sdk: latest
           target: ${{ matrix.target }}
-          android-ndk-version: ${{ matrix.target == 'Android64' && '27.2.12479018' || '' }}
+          android-ndk-version: ${{ matrix.target == 'Android64' && '28.0.13004108' || '' }}
 
       - name: Upload .geode package
         uses: actions/upload-artifact@v4
