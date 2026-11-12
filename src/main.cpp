@@ -1,7 +1,6 @@
 #include <Geode/Geode.hpp>
 #include "Runtime.hpp"
 #include "Math/Calculator.hpp"
-#include "IO/FileIO.hpp"
 #include "UI/SessionReportPopup.hpp"
 
 #include <array>
@@ -176,9 +175,14 @@ namespace gdtoolkit_runtime {
                 << "window_11_plus," << g_stats.windows[6] << "\n";
         }
         {
-            std::string error;
-            if (!gdtoolkit::io::writeEventsCsv(dir / "gd-toolkit-events.csv", {}, error)) {
-                log::warn("Could not export input event CSV: {}", error);
+            std::ofstream events(dir / "gd-toolkit-events.csv", std::ios::binary);
+            if (events) {
+                events << "attempt,frame,button,player,action,x,y,progress_percent\\n";
+                for (const auto& event : g_events) {
+                    events << event.attempt << "," << event.frame << "," << event.button << "," << event.player << ","
+                           << (event.down ? "press" : "release") << ","
+                           << event.x << "," << event.y << "," << event.progress << "\\n";
+                }
             }
         }
         FLAlertLayer::create("GD Toolkit", "Session summary and input history exported as JSON/CSV in the mod save folder.", "Close")->show();
