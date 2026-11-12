@@ -1,4 +1,8 @@
 #include <Geode/Geode.hpp>
+#include "Runtime.hpp"
+#include "Math/Calculator.hpp"
+#include "IO/FileIO.hpp"
+#include "UI/SessionReportPopup.hpp"
 
 #include <array>
 #include <algorithm>
@@ -9,7 +13,6 @@
 #include <vector>
 
 using namespace geode::prelude;
-#include "Runtime.hpp"
 
 namespace gdtoolkit_runtime {
     // Frame-window measurements are based on actual game input callbacks,
@@ -20,13 +23,7 @@ namespace gdtoolkit_runtime {
     uint32_t g_hudRefresh = 0;
 
     size_t bucketFor(uint64_t frames) {
-        if (frames <= 1) return 0;
-        if (frames == 2) return 1;
-        if (frames <= 4) return 2;
-        if (frames <= 6) return 3;
-        if (frames <= 8) return 4;
-        if (frames <= 10) return 5;
-        return 6;
+        return static_cast<size_t>(gdtoolkit::frameWindowFor(frames));
     }
 
     void recordInput(bool down, int button, bool isPlayer1, PlayerObject* player) {
@@ -179,21 +176,16 @@ namespace gdtoolkit_runtime {
                 << "window_11_plus," << g_stats.windows[6] << "\n";
         }
         {
-            std::ofstream events(dir / "gd-toolkit-events.csv", std::ios::binary);
-            if (events) {
-                events << "attempt,frame,button,player,action,x,y,progress_percent\n";
-                for (const auto& event : g_events) {
-                    events << event.attempt << "," << event.frame << "," << event.button << "," << event.player << ","
-                           << (event.down ? "press" : "release") << ","
-                           << event.x << "," << event.y << "," << event.progress << "\n";
-                }
+            std::string error;
+            if (!gdtoolkit::io::writeEventsCsv(dir / "gd-toolkit-events.csv", {}, error)) {
+                log::warn("Could not export input event CSV: {}", error);
             }
         }
         FLAlertLayer::create("GD Toolkit", "Session summary and input history exported as JSON/CSV in the mod save folder.", "Close")->show();
     }
 
     void showReport() {
-        FLAlertLayer::create("GD Toolkit — Session", makeReport(), "Close")->show();
+        gdtoolkit_ui::showSessionReport(makeReport());
     }
 }
 
