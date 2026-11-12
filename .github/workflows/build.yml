@@ -20,8 +20,10 @@ jobs:
         include:
           - name: Windows x64
             target: Win64
+            runner: windows-latest
           - name: Android ARM64
             target: Android64
+            runner: ubuntu-22.04
 
     steps:
       - name: Checkout
