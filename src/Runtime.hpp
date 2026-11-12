@@ -4,18 +4,10 @@
 #include <cstdint>
 #include <string>
 #include <vector>
+#include "Data/Types.hpp"
 
 namespace gdtoolkit_runtime {
-struct InputEvent {
-    std::uint64_t attempt = 1;
-    std::uint64_t frame = 0;
-    int button = 0;
-    int player = 1;
-    bool down = false;
-    float x = 0.f;
-    float y = 0.f;
-    float progress = 0.f;
-};
+using InputEvent = gdtoolkit::InputEvent;
 struct SessionStats {
     std::uint64_t frame = 0;
     std::uint64_t attemptFrames = 0;
