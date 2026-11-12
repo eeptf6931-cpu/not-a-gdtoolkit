@@ -89,7 +89,7 @@ namespace {
             g_hud = CCLabelBMFont::create("", "bigFont.fnt");
             if (!g_hud) return;
             g_hud->setAnchorPoint({0.f, 1.f});
-            g_hud->setScale(Mod::get()->(getSettingValue<int>("hud-scale") / 100.f));
+            g_hud->setScale((Mod::get()->getSettingValue<int>("hud-scale") / 100.f));
             g_hud->setID("gd-toolkit-hud");
             auto parent = layer->m_uiLayer ? layer->m_uiLayer : static_cast<CCNode*>(layer);
             parent->addChild(g_hud, 9999);
@@ -112,7 +112,7 @@ namespace {
 
         auto size = CCDirector::get()->getWinSize();
         g_hud->setPosition({8.f, size.height - 8.f});
-        g_hud->setScale(Mod::get()->(getSettingValue<int>("hud-scale") / 100.f));
+        g_hud->setScale((Mod::get()->getSettingValue<int>("hud-scale") / 100.f));
     }
 
     void showReport() {
