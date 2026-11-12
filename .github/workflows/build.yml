@@ -29,16 +29,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # Geode SDK 4.0.0's bundled fmt 11.0.2 hits a Clang 21 consteval
-      # regression. Use a known-compatible Clang 19 toolchain on Windows.
-      - name: Set up Clang 19
-        if: matrix.target == 'Win64'
-        uses: egor-tensin/setup-clang@v2
-        with:
-          version: 19
-          platform: x64
-
-      # NDK 27.2 ships Clang 18, avoiding the fmt/Clang 21 consteval issue.
       - name: Set up Java 17
         if: matrix.target == 'Android64'
         uses: actions/setup-java@v4
@@ -52,13 +42,15 @@ jobs:
         with:
           packages: ndk;27.2.12479018
 
+      # Do not pin bindings independently from the SDK: the old pinned commit
+      # did not contain headers required by the generated SDK bindings.
+      # SDK latest also updates fmt to a version compatible with the runner Clang.
       - name: Build Geode mod
         id: build
         uses: geode-sdk/build-geode-mod@main
         with:
+          sdk: latest
           target: ${{ matrix.target }}
-          bindings-ref: 01518cec46e0986880569f39a5ebe1a65f783c75
-          configure-args: -DGEODE_DISABLE_FMT_CONSTEVAL=ON
           android-ndk-version: ${{ matrix.target == 'Android64' && '27.2.12479018' || '' }}
 
       - name: Upload .geode package
