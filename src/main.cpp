@@ -1,7 +1,4 @@
 #include <Geode/Geode.hpp>
-#include <Geode/modify/PlayLayer.hpp>
-#include <Geode/modify/GJBaseGameLayer.hpp>
-#include <Geode/modify/PauseLayer.hpp>
 
 #include <array>
 #include <algorithm>
@@ -12,8 +9,9 @@
 #include <vector>
 
 using namespace geode::prelude;
+#include "Runtime.hpp"
 
-namespace {
+namespace gdtoolkit_runtime {
     // Frame-window measurements are based on actual game input callbacks,
     // not on estimated FPS or wall-clock time.
     struct InputEvent {
@@ -226,116 +224,8 @@ namespace {
     }
 }
 
-class $modify(GDToolkitPlayLayer, PlayLayer) {
-    void update(float dt) {
-        PlayLayer::update(dt);
-        if (!Mod::get()->getSettingValue<bool>("enabled")) {
-            g_stats.tracking = false;
-            if (g_hud) g_hud->setVisible(false);
-            return;
-        }
-
-        g_stats.tracking = true;
-        ++g_stats.frame;
-        ++g_stats.attemptFrames;
-
-        if (m_player1 && m_levelLength > 0.f) {
-            g_stats.progress = std::clamp(
-                (m_player1->getPositionX() / m_levelLength) * 100.f, 0.f, 100.f
-            );
-            g_stats.bestProgress = std::max(g_stats.bestProgress, g_stats.progress);
-        }
-
-        if (++g_hudRefresh >= 6) {
-            g_hudRefresh = 0;
-            updateHUD(this);
-        }
-    }
-
-    void resetLevel() {
-        PlayLayer::resetLevel();
-        if (!Mod::get()->getSettingValue<bool>("enabled")) return;
-
-        ++g_stats.attempts;
-        g_stats.bestClicks = std::max(g_stats.bestClicks, g_stats.clicks);
-        g_stats.bestFrames = std::max(g_stats.bestFrames, g_stats.attemptFrames);
-        g_stats.clicks = 0;
-        g_stats.attemptFrames = 0;
-        g_stats.progress = 0.f;
-        g_stats.lastPressFrame = 0;
-        g_stats.hasLastPress = false;
-        g_stats.currentWindows.fill(0);
-    }
-
-    void levelComplete() {
-        PlayLayer::levelComplete();
-        g_stats.bestProgress = 100.f;
-        g_stats.tracking = false;
-    }
-
-    void onQuit() {
-        g_stats.tracking = false;
-        if (g_hud) {
-            g_hud->removeFromParent();
-            g_hud = nullptr;
-        }
-        PlayLayer::onQuit();
-    }
-};
-
-class $modify(GDToolkitGameLayer, GJBaseGameLayer) {
-    void handleButton(bool down, int button, bool isPlayer1) {
-        GJBaseGameLayer::handleButton(down, button, isPlayer1);
-        if (Mod::get()->getSettingValue<bool>("enabled")) {
-            recordInput(down, button, isPlayer1, isPlayer1 ? this->m_player1 : this->m_player2);
-        }
-    }
-};
-
-class $modify(GDToolkitPauseLayer, PauseLayer) {
-    void customSetup() {
-        PauseLayer::customSetup();
-        if (!Mod::get()->getSettingValue<bool>("enabled")) return;
-
-        auto winSize = CCDirector::get()->getWinSize();
-        auto menu = CCMenu::create();
-        if (!menu) return;
-        menu->setPosition({0.f, 0.f});
-        this->addChild(menu, 100);
-
-        auto sprite = ButtonSprite::create("Toolkit", "bigFont.fnt", "GJ_button_01.png", 0.7f);
-        if (!sprite) return;
-        auto button = CCMenuItemSpriteExtra::create(
-            sprite, this, menu_selector(GDToolkitPauseLayer::onToolkit)
-        );
-        if (!button) return;
-        button->setPosition({winSize.width - 48.f, winSize.height - 34.f});
-        menu->addChild(button);
-
-        auto exportSprite = ButtonSprite::create("Export", "bigFont.fnt", "GJ_button_01.png", 0.7f);
-        if (exportSprite) {
-            auto exportButton = CCMenuItemSpriteExtra::create(
-                exportSprite, this, menu_selector(GDToolkitPauseLayer::onExport)
-            );
-            if (exportButton) {
-                exportButton->setPosition({winSize.width - 48.f, winSize.height - 76.f});
-                menu->addChild(exportButton);
-            }
-        }
-    }
-
-    void onExport(CCObject*) {
-        exportSession();
-    }
-
-    void onToolkit(CCObject*) {
-        showReport();
-        if (Mod::get()->getSettingValue<bool>("open-settings-from-pause")) {
-            geode::openSettingsPopup(Mod::get());
-        }
-    }
-};
 
 $on_mod(Loaded) {
     log::info("[GD Toolkit] Loaded: live click counter and frame-window tracking ready.");
 }
+
