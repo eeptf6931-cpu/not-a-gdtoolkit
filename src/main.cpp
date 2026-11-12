@@ -175,6 +175,8 @@ namespace gdtoolkit_runtime {
                 << "attempt_frames," << g_stats.attemptFrames << "\n"
                 << "progress_percent," << g_stats.progress << "\n"
                 << "best_progress_percent," << g_stats.bestProgress << "\n"
+                << "best_clicks," << g_stats.bestClicks << "\n"
+                << "longest_attempt_frames," << g_stats.bestFrames << "\n"
                 << "window_1," << g_stats.windows[0] << "\n"
                 << "window_2," << g_stats.windows[1] << "\n"
                 << "window_3_4," << g_stats.windows[2] << "\n"
